@@ -63,3 +63,24 @@ pub fn input_str() -> Option<String> {
     };
     Some(input) //return the final input string
 }
+
+#[macro_export]
+// Assinment CA2B input_str
+
+macro_rules! input_str {
+
+($($arg:tt)*) => {{
+    
+    print!("{}", format_args!($($arg)*));
+    
+    match input_str(){
+    
+    Some(value) => value,
+    
+    None => "".to_owned(),
+    
+    }
+    
+    }};
+    
+}
