@@ -40,7 +40,7 @@ bootloader_api::entry_point!(my_entry_point, config = &BOOTLOADER_CONFIG);
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use crate::{std::input_str, task::{simple_executor::SimpleExecutor, Task}};
+use crate::{std::input_str_fn, task::{simple_executor::SimpleExecutor, Task}};
 
 //use lazy static to allow declaration of static without initializing with a constant value
 //Mutex from spin is used for control of threads access.
@@ -154,11 +154,25 @@ fn my_entry_point(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
 
     //Let's experience getting string from keyboard and saving into a variable for use
     print!("Enter string: ");
-    let input = match input_str() {
+    let input = match input_str_fn() {
         Some(value) => value,
         None => "".to_owned()
     };
     println!("\nString entered is '{}'", input);
+
+    print!("Enter another string: ");
+    let input2 = match input_str_fn() {
+        Some(value) => value,
+        None => "".to_owned()
+    };
+    println!("\nString entered is '{}'", input2);
+
+    let mut my_input = input_str!("Enter some string:");
+    println!("\nAdditinoal string entered is '{}'", my_input);
+
+    input_char!("Press any key to continue ...");
+    println!("You are done! Premptive Multitasking can still happen though e.g. with interrupts and the handlers will do their job");
+
 
 
     // invoke a breakpoint exception for test

@@ -130,6 +130,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
                     }
                     
                 },
+                //Below needs to be adjusted for catching special keys
                 DecodedKey::RawKey(key) => print!("{:?}", key),
             }
         }

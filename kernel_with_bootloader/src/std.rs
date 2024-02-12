@@ -24,7 +24,30 @@ macro_rules! println {
     }};
 }
 
-pub fn input_str() -> Option<String> {
+#[macro_export]
+macro_rules! input_str {
+    ($prompt:expr) => {{
+        use alloc::string::{String, ToString};
+        use crate::std::input_str_fn;
+        use crate::interrupts::KEY_PRESSED;
+        *KEY_PRESSED.lock() = None; //clear global KEY_PRESSED holder before prompt 
+        print!("{}", $prompt);
+        input_str_fn().unwrap_or_else(|| -> String {"".to_string()})
+    }};
+}
+
+#[macro_export]
+macro_rules! input_char {
+    ($prompt:expr) => {{
+        use crate::interrupts::KEY_PRESSED;
+        use crate::std::input_char_fn;
+        *KEY_PRESSED.lock() = None; //clear global KEY_PRESSED holder before prompt 
+        print!("{}", $prompt);
+        input_char_fn();
+    }};
+}
+
+pub fn input_str_fn() -> Option<String> {
     let mut input: String = "".to_string();
     let mut input_counter:u32 = 0; //keep a count so that backspaced induced pop is not allowed beyond the count
     let mut character = *KEY_PRESSED.lock();
@@ -61,5 +84,26 @@ pub fn input_str() -> Option<String> {
         }
         character = *KEY_PRESSED.lock(); //read again as long as we have not broken out.
     };
+    *KEY_PRESSED.lock() = None; //clear global KEY_PRESSED so that effect is not transferred to the next input_str call
     Some(input) //return the final input string
 }
+
+//Below is for typical press any key to continue
+pub fn input_char_fn() {
+    let mut character = *KEY_PRESSED.lock();
+
+    while character == None {
+        match character {
+            None => {
+                //do nothing
+            },
+            _ => {//Every other unicode key sent, break
+                *KEY_PRESSED.lock() = None; //clear global KEY_PRESSED after cloning
+                break;
+            }
+        }
+        character = *KEY_PRESSED.lock(); //read again as long as we have not broken out.
+    };
+    *KEY_PRESSED.lock() = None; //clear global KEY_PRESSED so that effect is not transferred to the next input_char or input_str
+}
+
